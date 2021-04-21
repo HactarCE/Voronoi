@@ -45,12 +45,7 @@ fn main() {
     let display = &**DISPLAY;
 
     // Initialize program state.
-    let mut points = vec![
-        Point::new([100, 0]),
-        Point::new([-50, 40]),
-        Point::new([-60, -20]),
-        Point::new([0, 90]),
-    ];
+    let mut points: Vec<Point> = (0..5).map(|_| Point::random()).collect();
     let mut target_dimensions = (0, 0);
     let mut mouse_pos: [i32; 2] = [0, 0];
     let mut dragging_index: Option<usize> = None;

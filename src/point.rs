@@ -1,3 +1,4 @@
+use rand::Rng;
 use random_color::{Luminosity, RandomColor};
 
 #[derive(Debug, Default, Copy, Clone)]
@@ -9,6 +10,12 @@ impl Point {
     pub fn new(pos: [i32; 2]) -> Self {
         let color = random_color();
         Self { pos, color }
+    }
+    pub fn random() -> Self {
+        let mut rng = rand::thread_rng();
+        let x = rng.gen_range(-200..=200);
+        let y = rng.gen_range(-200..=200);
+        Self::new([x, y])
     }
 
     pub fn set_random_color(&mut self) {
