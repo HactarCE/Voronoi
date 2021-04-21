@@ -158,6 +158,13 @@ fn main() {
                                         dragging_index =
                                             point::nearest_point_idx(&points, mouse_pos);
                                     }
+                                    MouseButton::Left if modifiers == ModifiersState::CTRL => {
+                                        if let Some(i) =
+                                            point::nearest_point_idx(&points, mouse_pos)
+                                        {
+                                            points[i].set_random_color();
+                                        }
+                                    }
                                     MouseButton::Right if modifiers.is_empty() => {
                                         dragging_index = None;
                                         if let Some(i) =

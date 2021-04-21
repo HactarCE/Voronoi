@@ -12,8 +12,9 @@ pub fn build_points_window(ui: &Ui, points: &mut Vec<Point>, target_dimensions: 
         .always_auto_resize(true)
         .build(ui, || {
             ui.text("Left click to add a new point");
-            ui.text("Shift + left click to move a point");
             ui.text("Right click to remove a point");
+            ui.text("Shift + left click to move a point");
+            ui.text("Ctrl + left click to assign a new random color");
 
             ui.separator();
 
