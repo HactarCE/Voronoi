@@ -18,10 +18,12 @@ extern crate glium;
 #[macro_use]
 extern crate lazy_static;
 
+mod config;
 mod point;
 mod render;
 mod windows;
 
+use config::{Config, VoronoiKind};
 use point::Point;
 
 const TITLE: &str = "Voronoi";
@@ -42,14 +44,18 @@ lazy_static! {
 fn main() {
     let display = &**DISPLAY;
 
-    // Initialize runtime data.
-    let mut events_buffer = VecDeque::new();
+    // Initialize program state.
     let mut points = vec![
         Point::new([100, 0]),
         Point::new([-50, 40]),
         Point::new([-60, -20]),
         Point::new([0, 90]),
     ];
+    let mut target_dimensions = (0, 0);
+    let mut mouse_pos: [i32; 2] = [0, 0];
+    let mut dragging_index: Option<usize> = None;
+    let mut modifiers: ModifiersState = ModifiersState::default();
+    let mut config = Config::default();
 
     // Initialize imgui.
     let mut imgui = imgui::Context::create();
@@ -72,10 +78,7 @@ fn main() {
 
     // Main loop
     let mut first = true;
-    let mut target_dimensions = (0, 0);
-    let mut mouse_pos: [i32; 2] = [0, 0];
-    let mut dragging_index: Option<usize> = None;
-    let mut modifiers: ModifiersState = ModifiersState::default();
+    let mut events_buffer = VecDeque::new();
     let mut last_frame_time = Instant::now();
     let mut next_frame_time = Instant::now();
     EVENT_LOOP
@@ -206,12 +209,13 @@ fn main() {
                     );
                     first = false;
                 }
-                windows::build_all(&ui, &mut points, target_dimensions);
+                windows::build_points_window(&ui, &mut points, target_dimensions);
+                windows::build_config_window(&ui, &mut config);
 
                 let mut target = display.draw();
                 target_dimensions = target.get_dimensions();
 
-                render::draw_voronoi(&mut target, &points);
+                render::draw_voronoi(&mut target, &points, &config);
 
                 // Render imgui.
                 platform.prepare_render(&ui, gl_window.window());

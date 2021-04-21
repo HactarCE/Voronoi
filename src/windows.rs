@@ -1,16 +1,20 @@
 use imgui::*;
 
-use crate::Point;
+use crate::{Config, Point, VoronoiKind};
 
-pub fn build_all(ui: &Ui, points: &mut Vec<Point>, target_dimensions: (u32, u32)) {
+pub fn build_points_window(ui: &Ui, points: &mut Vec<Point>, target_dimensions: (u32, u32)) {
+    let min_size = std::cmp::min(target_dimensions.0, target_dimensions.1);
+    let extent = min_size as i32 / 2;
+
     Window::new(im_str!("Points"))
         .size_constraints([250.0, -1.0], [250.0, -1.0])
-        // .resizable(true)
+        .resizable(false)
         .always_auto_resize(true)
         .build(ui, || {
             ui.text("Left click to add a new point");
             ui.text("Shift + left click to move a point");
             ui.text("Right click to remove a point");
+
             ui.separator();
 
             for (i, p) in points.iter_mut().enumerate() {
@@ -18,18 +22,66 @@ pub fn build_all(ui: &Ui, points: &mut Vec<Point>, target_dimensions: (u32, u32)
                 ColorEdit::new(&ImString::from(format!("Color #{}", i + 1)), &mut p.color)
                     .build(ui);
                 ui.same_line(0.0);
-                {
-                    let w = ui.push_item_width(-1.0);
 
-                    let min_size = std::cmp::min(target_dimensions.0, target_dimensions.1);
-                    let extent = min_size as i32 / 2;
+                let w = ui.push_item_width(-1.0);
+                Slider::new(&label)
+                    .range(-extent..=extent)
+                    .build_array(ui, &mut p.pos);
+                w.pop(ui);
+            }
 
-                    Slider::new(&label)
-                        .range(-extent..=extent)
-                        .build_array(ui, &mut p.pos);
+            ui.separator();
 
-                    w.pop(ui);
+            if ui.button(
+                im_str!("Randomize colors"),
+                [ui.window_content_region_width(), 30.0],
+            ) {
+                for p in points {
+                    p.set_random_color();
                 }
             }
         });
+}
+
+pub fn build_config_window(ui: &Ui, config: &mut Config) {
+    Window::new(im_str!("Config"))
+        .resizable(false)
+        .position([720.0, 60.0], Condition::FirstUseEver)
+        .build(ui, || {
+            ui.text("Kind of Voronoi cell");
+            ui.radio_button(
+                im_str!("Nearest"),
+                &mut config.voronoi_kind,
+                VoronoiKind::Near,
+            );
+            ui.radio_button(
+                im_str!("Farthest"),
+                &mut config.voronoi_kind,
+                VoronoiKind::Far,
+            );
+
+            ui.separator();
+
+            ui.text("Lp distance metric");
+
+            let w = ui.push_item_width(-1.0);
+            ui.input_float(im_str!("Lp distance metric"), &mut config.lp)
+                .build();
+            w.pop(ui);
+            config.lp = config.lp.clamp(0.5, 10.0);
+
+            for (i, &lp) in [0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 3.0, 10.0]
+                .iter()
+                .enumerate()
+            {
+                if i % 4 != 0 {
+                    ui.same_line(0.0);
+                }
+
+                let label = ImString::from(format!("{}", lp));
+                if ui.button(&label, [30.0, 25.0]) {
+                    config.lp = lp;
+                }
+            }
+        })
 }

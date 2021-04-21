@@ -4,7 +4,7 @@ use glium::{Frame, Program, Surface, VertexBuffer};
 use lazy_static::lazy_static;
 use send_wrapper::SendWrapper;
 
-use crate::{Point, DISPLAY};
+use crate::{Config, Point, VoronoiKind, DISPLAY};
 
 const POINT_RADIUS: f32 = 3.0_f32;
 
@@ -41,7 +41,7 @@ lazy_static! {
     );
 }
 
-pub fn draw_voronoi(target: &mut Frame, points: &[Point]) {
+pub fn draw_voronoi(target: &mut Frame, points: &[Point], config: &Config) {
     let (w, h) = target.get_dimensions();
 
     target.clear_color_srgb(0.5, 0.0, 0.5, 1.0);
@@ -59,6 +59,12 @@ pub fn draw_voronoi(target: &mut Frame, points: &[Point]) {
     let colors_tex =
         SrgbTexture1d::new(&**DISPLAY, colors_tex_data).expect("Failed to create texture");
 
+    let lp: f32 = config.lp;
+    let distance_multiplier: f32 = match config.voronoi_kind {
+        VoronoiKind::Near => 1.0,
+        VoronoiKind::Far => -1.0,
+    };
+
     target
         .draw(
             &**VBO,
@@ -70,6 +76,9 @@ pub fn draw_voronoi(target: &mut Frame, points: &[Point]) {
                 points_tex: points_tex.sampled(),
                 colors_tex: colors_tex.sampled(),
                 point_distance: POINT_RADIUS.powf(2.0),
+
+                lp: lp,
+                distance_multiplier: distance_multiplier,
             },
             &glium::DrawParameters::default(),
         )

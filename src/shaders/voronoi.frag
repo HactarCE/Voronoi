@@ -6,6 +6,9 @@ uniform isampler1D points_tex;
 uniform sampler1D colors_tex;
 uniform float point_distance;
 
+uniform float lp;
+uniform float distance_multiplier;
+
 out vec4 color;
 
 int point_count = textureSize(points_tex, 0);
@@ -21,11 +24,11 @@ vec4 getColor(int i) {
 void main() {
     color = vec4(0.5, 0.5, 0.5, 1.0);
 
-    float best_distance = 999999.0;
+    float best_distance = pow(999999.0, lp) * distance_multiplier;
     for (int i = 0; i < point_count; i++) {
-        vec2 delta = pos - getXY(i);
-        vec2 tmp = pow(delta, vec2(2.0));
-        float dist = tmp.x + tmp.y;
+        vec2 delta = abs(pos - getXY(i));
+        vec2 tmp = pow(delta, vec2(lp));
+        float dist = (tmp.x + tmp.y) * distance_multiplier;
 
         if (dist <= point_distance) {
             color = getColor(i);
