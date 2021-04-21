@@ -1,10 +1,10 @@
+use glium::glutin::event::{
+    ElementState, Event, ModifiersState, MouseButton, StartCause, WindowEvent,
+};
 use glium::glutin::event_loop::{ControlFlow, EventLoop};
 use glium::glutin::window::WindowBuilder;
 use glium::glutin::ContextBuilder;
-use glium::{
-    glutin::event::{Event, StartCause, WindowEvent},
-    Surface,
-};
+use glium::Surface;
 use imgui::FontSource;
 use imgui_glium_renderer::Renderer;
 use imgui_winit_support::{HiDpiMode, WinitPlatform};
@@ -45,10 +45,10 @@ fn main() {
     // Initialize runtime data.
     let mut events_buffer = VecDeque::new();
     let mut points = vec![
-        Point::new(100, 0),
-        Point::new(-50, 40),
-        Point::new(-60, -20),
-        Point::new(0, 90),
+        Point::new([100, 0]),
+        Point::new([-50, 40]),
+        Point::new([-60, -20]),
+        Point::new([0, 90]),
     ];
 
     // Initialize imgui.
@@ -73,6 +73,9 @@ fn main() {
     // Main loop
     let mut first = true;
     let mut target_dimensions = (0, 0);
+    let mut mouse_pos: [i32; 2] = [0, 0];
+    let mut dragging_index: Option<usize> = None;
+    let mut modifiers: ModifiersState = ModifiersState::default();
     let mut last_frame_time = Instant::now();
     let mut next_frame_time = Instant::now();
     EVENT_LOOP
@@ -133,7 +136,53 @@ fn main() {
                     // Let imgui handle events.
                     platform.handle_event(imgui_io, gl_window.window(), &ev);
 
-                    // TODO: handle events for visualization.
+                    // Handle mouse events on the main diagram.
+                    if !imgui_io.want_capture_mouse {
+                        match &ev {
+                            Event::WindowEvent { event, .. } => match event {
+                                WindowEvent::ModifiersChanged(mods) => modifiers = *mods,
+                                WindowEvent::MouseInput {
+                                    state: ElementState::Released,
+                                    ..
+                                } => {
+                                    dragging_index = None;
+                                }
+                                WindowEvent::MouseInput {
+                                    state: ElementState::Pressed,
+                                    button,
+                                    ..
+                                } => match button {
+                                    MouseButton::Left if modifiers.is_empty() => {
+                                        dragging_index = Some(points.len());
+                                        points.push(Point::new(mouse_pos));
+                                    }
+                                    MouseButton::Left if modifiers == ModifiersState::SHIFT => {
+                                        dragging_index =
+                                            point::nearest_point_idx(&points, mouse_pos);
+                                    }
+                                    MouseButton::Right if modifiers.is_empty() => {
+                                        dragging_index = None;
+                                        if let Some(i) =
+                                            point::nearest_point_idx(&points, mouse_pos)
+                                        {
+                                            points.remove(i);
+                                        }
+                                    }
+                                    _ => (),
+                                },
+                                WindowEvent::CursorMoved { position, .. } => {
+                                    let (w, h) = target_dimensions;
+                                    mouse_pos[0] = -(w as i32) / 2 + position.x as i32;
+                                    mouse_pos[1] = h as i32 / 2 - position.y as i32;
+                                }
+                                _ => (),
+                            },
+                            _ => (),
+                        }
+                    }
+                    if let Some(i) = dragging_index {
+                        points[i].pos = mouse_pos;
+                    }
 
                     // Handle important window events.
                     match ev {
@@ -147,7 +196,6 @@ fn main() {
                 }
 
                 // Prep imgui for rendering.
-                let imgui_has_mouse = imgui_io.want_capture_mouse;
                 let ui = imgui.frame();
                 if first {
                     ui.set_color_edit_options(

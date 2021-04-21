@@ -4,7 +4,9 @@ use crate::Point;
 
 pub fn build_all(ui: &Ui, points: &mut Vec<Point>, target_dimensions: (u32, u32)) {
     Window::new(im_str!("Points"))
-        .resizable(false)
+        .size_constraints([250.0, -1.0], [250.0, -1.0])
+        // .resizable(true)
+        .always_auto_resize(true)
         .build(ui, || {
             ui.text("Left click to add a new point");
             ui.text("Shift + left click to move a point");
