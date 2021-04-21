@@ -31,6 +31,27 @@ pub fn build_points_window(ui: &Ui, points: &mut Vec<Point>, target_dimensions: 
                 w.pop(ui);
             }
 
+            if ui.button(
+                im_str!("Export to clipboard"),
+                [ui.window_content_region_width(), 25.0],
+            ) {
+                match serde_json::to_string(points) {
+                    Ok(s) => crate::clipboard_compat::clipboard_set(s),
+                    Err(e) => eprintln!("Error serializing points list: {}", e),
+                }
+            }
+            if ui.button(
+                im_str!("Import from clipboard"),
+                [ui.window_content_region_width(), 25.0],
+            ) {
+                if let Some(s) = crate::clipboard_compat::clipboard_get() {
+                    match serde_json::from_str(&s) {
+                        Ok(pts) => *points = pts,
+                        Err(e) => eprintln!("Error deserializing points list: {}", e),
+                    }
+                }
+            }
+
             ui.separator();
 
             if ui.button(

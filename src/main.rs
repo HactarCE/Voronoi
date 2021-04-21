@@ -17,12 +17,16 @@ use std::time::{Duration, Instant};
 extern crate glium;
 #[macro_use]
 extern crate lazy_static;
+#[macro_use]
+extern crate serde;
 
+mod clipboard_compat;
 mod config;
 mod point;
 mod render;
 mod windows;
 
+use clipboard_compat::ClipboardCompat;
 use config::{Config, VoronoiKind};
 use point::Point;
 
@@ -54,6 +58,7 @@ fn main() {
 
     // Initialize imgui.
     let mut imgui = imgui::Context::create();
+    imgui.set_clipboard_backend(Box::new(ClipboardCompat));
     imgui.set_ini_filename(None);
     let mut platform = WinitPlatform::init(&mut imgui);
     let gl_window = display.gl_window();

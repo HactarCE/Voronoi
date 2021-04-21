@@ -1,7 +1,7 @@
 use rand::Rng;
 use random_color::{Luminosity, RandomColor};
 
-#[derive(Debug, Default, Copy, Clone)]
+#[derive(Serialize, Deserialize, Debug, Default, Copy, Clone)]
 pub struct Point {
     pub pos: [i32; 2],
     pub color: [f32; 3],
