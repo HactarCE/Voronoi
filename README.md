@@ -15,7 +15,6 @@ cd Voronoi
 cargo run --release
 ```
 
-
 ## Building on Windows
 
 1. Download/install [Rustup](https://www.rust-lang.org/tools/install).
@@ -23,3 +22,17 @@ cargo run --release
 3. Run `rustup.exe default stable-msvc` to select that toolchain as the default.
 4. Download this project and extract it somewhere.
 5. Open a terminal in the folder where you extracted the project (it should have `Cargo.toml` in it) and build it using `cargo build --release` or run it using `cargo run --release`.
+
+## License
+
+Licensed under either of
+
+- Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE) or
+  <https://www.apache.org/licenses/LICENSE-2.0>)
+- MIT license ([LICENSE-MIT](LICENSE-MIT) or <https://opensource.org/licenses/MIT>)
+
+at your option.
+
+Unless you explicitly state otherwise, any contribution intentionally submitted
+for inclusion in the work by you, as defined in the Apache-2.0 license, shall be
+dual licensed as above, without any additional terms or conditions.
