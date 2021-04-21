@@ -150,21 +150,25 @@ fn main() {
                                     button,
                                     ..
                                 } => match button {
+                                    // Move a point.
                                     MouseButton::Left if modifiers.is_empty() => {
-                                        dragging_index = Some(points.len());
-                                        points.push(Point::new(mouse_pos));
-                                    }
-                                    MouseButton::Left if modifiers == ModifiersState::SHIFT => {
                                         dragging_index =
                                             point::nearest_point_idx(&points, mouse_pos);
                                     }
-                                    MouseButton::Left if modifiers == ModifiersState::CTRL => {
+                                    // Assign a new random color.
+                                    MouseButton::Left if modifiers == ModifiersState::SHIFT => {
                                         if let Some(i) =
                                             point::nearest_point_idx(&points, mouse_pos)
                                         {
                                             points[i].set_random_color();
                                         }
                                     }
+                                    // Add a new point.
+                                    MouseButton::Left if modifiers == ModifiersState::CTRL => {
+                                        dragging_index = Some(points.len());
+                                        points.push(Point::new(mouse_pos));
+                                    }
+                                    // Remove a point.
                                     MouseButton::Right if modifiers.is_empty() => {
                                         dragging_index = None;
                                         if let Some(i) =
