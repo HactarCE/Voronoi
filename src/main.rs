@@ -5,14 +5,21 @@ use glium::glutin::ContextBuilder;
 use imgui::FontSource;
 use imgui_glium_renderer::Renderer;
 use imgui_winit_support::{HiDpiMode, WinitPlatform};
-use lazy_static::lazy_static;
 use send_wrapper::SendWrapper;
 use std::cell::RefCell;
 use std::collections::VecDeque;
 use std::time::{Duration, Instant};
 
+#[macro_use]
+extern crate glium;
+#[macro_use]
+extern crate lazy_static;
+
+mod point;
 mod render;
 mod window;
+
+use point::Point;
 
 const TITLE: &str = "Voronoi";
 const FONT_SIZE: f32 = 18.0;
@@ -33,8 +40,13 @@ fn main() {
     let display = &**DISPLAY;
 
     // Initialize runtime data.
-    let mut points: Vec<[isize; 2]> = vec![[100, 00], [-50, 40], [-60, -20], [0, 90]];
     let mut events_buffer = VecDeque::new();
+    let mut points = vec![
+        Point::new(100, 0),
+        Point::new(-50, 40),
+        Point::new(-60, -20),
+        Point::new(0, 90),
+    ];
 
     // Initialize imgui.
     let mut imgui = imgui::Context::create();
