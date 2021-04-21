@@ -12,7 +12,7 @@ pub fn build_points_window(ui: &Ui, points: &mut Vec<Point>, target_dimensions: 
         .always_auto_resize(true)
         .build(ui, || {
             ui.text("Left click to move a point");
-            ui.text("Shift + left click to assign a new random color");
+            ui.text("Shift + left click to randomize color");
             ui.text("Ctrl + left click to add a new point");
             ui.text("Right click to remove a point");
 
@@ -101,7 +101,7 @@ pub fn build_config_window(ui: &Ui, config: &mut Config) {
                 }
 
                 let label = ImString::from(format!("{}", lp));
-                if ui.button(&label, [30.0, 25.0]) {
+                if ui.button(&label, [35.0, 25.0]) {
                     config.lp = lp;
                 }
             }
