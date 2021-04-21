@@ -49,7 +49,7 @@ fn main() {
     let display = &**DISPLAY;
 
     // Initialize program state.
-    let mut points: Vec<Point> = (0..5).map(|_| Point::random()).collect();
+    let mut points: Vec<Point> = load_default_points();
     let mut target_dimensions = (0, 0);
     let mut mouse_pos: [i32; 2] = [0, 0];
     let mut dragging_index: Option<usize> = None;
@@ -239,4 +239,15 @@ fn main() {
                 target.finish().expect("Failed to swap buffers");
             }
         })
+}
+
+fn load_default_points() -> Vec<Point> {
+    serde_json::from_str(include_str!("../resources/default.json")).unwrap_or_else(|e| {
+        eprintln!("Error deserializing default points: {}", e);
+        generate_random_points()
+    })
+}
+
+fn generate_random_points() -> Vec<Point> {
+    (0..5).map(|_| Point::random()).collect()
 }
